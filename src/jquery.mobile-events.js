@@ -4,7 +4,7 @@
  *
  * Copyright 2011, Ben Major
  * Licensed under the MIT License:
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -22,7 +22,7 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
- * 
+ *
  */
 (function ($) {
     $.attrFn = $.attrFn || {};
@@ -45,16 +45,16 @@
             touch_capable: ('ontouchstart' in window && !isChromeDesktop),
             orientation_support: ('orientation' in window && 'onorientationchange' in window),
 
-            startevent: ('ontouchstart' in window && !isChromeDesktop) ? 'touchstart' : 'mousedown',
-            endevent: ('ontouchstart' in window && !isChromeDesktop) ? 'touchend' : 'mouseup',
-            moveevent: ('ontouchstart' in window && !isChromeDesktop) ? 'touchmove' : 'mousemove',
-            tapevent: ('ontouchstart' in window && !isChromeDesktop) ? 'tap' : 'click',
-            scrollevent: ('ontouchstart' in window && !isChromeDesktop) ? 'touchmove' : 'scroll',
+            startevent: 'touchstart',
+            endevent: 'touchend',
+            moveevent: 'touchmove',
+            tapevent: 'tap',
+            scrollevent: 'touchmove',
 
             hold_timer: null,
             tap_timer: null
         };
-    
+
     // Convenience functions:
     $.isTouchCapable = function() { return settings.touch_capable; };
     $.getStartEvent = function() { return settings.startevent; };
@@ -62,7 +62,7 @@
     $.getMoveEvent = function() { return settings.moveevent; };
     $.getTapEvent = function() { return settings.tapevent; };
     $.getScrollEvent = function() { return settings.scrollevent; };
-    
+
     // Add Event shortcuts:
     $.each(['tapstart', 'tapend', 'tapmove', 'tap', 'tap2', 'tap3', 'tap4', 'singletap', 'doubletap', 'taphold', 'swipe', 'swipeup', 'swiperight', 'swipedown', 'swipeleft', 'swipeend', 'scrollstart', 'scrollend', 'orientationchange'], function (i, name) {
         $.fn[name] = function (fn) {
@@ -107,16 +107,16 @@
             $(this).off(settings.startevent, $(this).data.callee);
         }
     };
-	
+
     // tapmove Event:
     $.event.special.tapmove = {
     	setup: function() {
             var thisObject = this,
             $this = $(thisObject);
-    			
+
             $this.on(settings.moveevent, function(e) {
                 $this.data('callee', arguments.callee);
-    			
+
                 var origEvent = e.originalEvent,
                     touchData = {
                         'position': {
@@ -130,7 +130,7 @@
                         'time': Date.now(),
                         'target': e.target
                     };
-    				
+
                 triggerCustomEvent(thisObject, 'tapmove', e, touchData);
                 return true;
             });
@@ -254,7 +254,7 @@
             })
             .on(settings.moveevent, function (e) {
                 $this.data('callee3', arguments.callee);
-				
+
                 end_x = (e.originalEvent.targetTouches) ? e.originalEvent.targetTouches[0].pageX : e.pageX;
                 end_y = (e.originalEvent.targetTouches) ? e.originalEvent.targetTouches[0].pageY : e.pageY;
             });
@@ -301,7 +301,7 @@
 
                 return true;
             }).on(settings.endevent, function (e) {
-				
+
                 var now = Date.now();
                 var lastTouch = $this.data('lastTouch') || now + 1;
                 var delta = now - lastTouch;
@@ -335,13 +335,13 @@
                     if (!cooling) {
                     	triggerCustomEvent(thisObject, 'doubletap', e, touchData);
                     }
-                    
+
                     cooling = true;
-                    
+
                     cooloff = window.setTimeout(function (e) {
                     	cooling = false;
                     }, settings.doubletap_int);
-					
+
                 } else {
                     $this.data('lastTouch', now);
                     action = window.setTimeout(function (e) {
@@ -388,7 +388,7 @@
                     // Get the end point:
                     end_pos_x = (e.originalEvent.changedTouches) ? e.originalEvent.changedTouches[0].pageX : e.pageX;
                     end_pos_y = (e.originalEvent.changedTouches) ? e.originalEvent.changedTouches[0].pageY : e.pageY;
-                    
+
                     // We need to check if it was a taphold:
 
                     settings.tap_timer = window.setTimeout(function () {
@@ -406,7 +406,7 @@
                                 'time': Date.now(),
                                 'target': e.target
                             };
-                            
+
                             // Was it a taphold?
                             if((touchData.time - startTime) < settings.taphold_threshold)
                             {
@@ -448,7 +448,7 @@
                     start_pos.y = (e.originalEvent.targetTouches) ? e.originalEvent.targetTouches[0].pageY : e.pageY;
                     start_time = Date.now();
                     origTarget = e.target;
-					
+
                     touches = (e.originalEvent.targetTouches) ? e.originalEvent.targetTouches : [ e ];
                     return true;
                 }
@@ -461,11 +461,11 @@
                     diff_x = (start_pos.x - end_x),
                     diff_y = (start_pos.y - end_y),
                     eventName;
-					
+
                 if (origTarget == e.target && started && ((Date.now() - start_time) < settings.taphold_threshold) && ((start_pos.x == end_x && start_pos.y == end_y) || (diff_x >= -(settings.tap_pixel_range) && diff_x <= settings.tap_pixel_range && diff_y >= -(settings.tap_pixel_range) && diff_y <= settings.tap_pixel_range))) {
                     var origEvent = e.originalEvent;
                     var touchData = [ ];
-					
+
                     for( var i = 0; i < touches.length; i++)
                     {
                         var touch = {
@@ -480,29 +480,29 @@
                             'time': Date.now(),
                             'target': e.target
                         };
-                    	
+
                         touchData.push( touch );
                     }
-                    
+
                     switch( touches.length )
                     {
                         case 1:
                             eventName = 'tap';
                             break;
-                    	
+
                         case 2:
                             eventName = 'tap2';
                             break;
-                    	
+
                         case 3:
                             eventName = 'tap3';
                             break;
-                    	
+
                         case 4:
                             eventName = 'tap4';
                             break;
                     }
-					
+
                     triggerCustomEvent(thisObject, eventName, e, touchData);
                 }
             });
